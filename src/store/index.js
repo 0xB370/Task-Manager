@@ -49,8 +49,15 @@ export default createStore({
       }
       commit('set', tarea)
     },
-    deleteTareas({ commit }, id) {
-      commit('eliminar', id)
+    async deleteTareas({ commit }, id) {
+      try {
+        fetch(`${firebaseURL}/${id}.json`, {
+          method: 'DELETE'
+        })
+        commit('eliminar', id)
+      } catch (error) {
+        console.error(error);
+      }
     },
     setTarea({ commit }, id) {
       commit('tarea', id)
