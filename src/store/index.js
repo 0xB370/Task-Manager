@@ -43,7 +43,6 @@ export default createStore({
           body: JSON.stringify(tarea)
         })
         const dataDB = await res.json()
-        console.log(dataDB);
       } catch (error) {
         console.error(error);
       }
