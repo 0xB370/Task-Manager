@@ -3,6 +3,7 @@ import router from '../router'
 
 const firebaseURL = process.env.VUE_APP_FIREBASE_DB_URL
 const signupURL = process.env.VUE_APP_SIGNUP_URL
+const signinURL = process.env.VUE_APP_SIGNIN_URL
 
 export default createStore({
   state: {
@@ -102,6 +103,31 @@ export default createStore({
         })
         const userDB = await res
         console.log(userDB)
+        if (userDB.ok === false) {
+          return console.error(userDB.statusText);
+        }
+        commit('setUser', userDB)
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async loginUsuario({ commit }, usuario) {
+      try {
+        const res = fetch(signinURL, {
+          method: 'POST',
+          body: JSON.stringify({
+            email: usuario.email,
+            password: usuario.password,
+            returnSecureToken: true
+          })
+        })
+        const userDB = await res
+        console.log(userDB)
+        if (userDB.ok === false) {
+          return console.error(userDB.statusText);
+        }
+        commit('setUser', userDB)
+        router.push("/")
       } catch (error) {
         console.error(error);
       }

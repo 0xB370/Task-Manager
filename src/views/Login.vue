@@ -1,6 +1,6 @@
 <template>
-    <h1 class="my-5">Registro de Usuario</h1>
-    <form @submit.prevent="registrarUsuario({email, password: pass1}); limpiarForm()">
+    <h1 class="my-5">Iniciar Sesión</h1>
+    <form @submit.prevent="loginUsuario({email, password: pass1}); limpiarForm()">
         <input 
             type="email" 
             placeholder="E-mail"
@@ -13,18 +13,12 @@
             class="form-control my-2"
             v-model.trim="pass1"
         >
-        <input 
-            type="password"
-            placeholder="Repetir Password"
-            class="form-control my-2"
-            v-model.trim="pass2"
-        >
         <button 
             type="submit" 
             class="btn btn-primary"
             :disabled="bloquear"
         >
-            Registrar
+            Ingresar
         </button>
     </form>
 </template>
@@ -36,21 +30,20 @@ export default {
     data() {
         return {
             email: '',
-            pass1: '',
-            pass2: ''
+            pass1: ''
         }
     },
     computed: {
         bloquear() {
-            return !( (this.email.includes("@")) && (this.pass1.length > 5) && (this.pass1 === this.pass2) )
+            return !( (this.email.includes("@")) && 
+                (this.pass1.length > 5) )
         }
     },
     methods: {
-        ...mapActions(['registrarUsuario']),
+        ...mapActions(['loginUsuario']),
         limpiarForm() {
             this.email = ''
             this.pass1 = ''
-            this.pass2 = ''
         }
     }
 }
