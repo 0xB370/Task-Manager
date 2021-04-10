@@ -15,7 +15,7 @@ export default createStore({
       estado: '',
       numero: 0
     },
-    user: null
+    user: ''
   },
   mutations: {
     setUser(state, payload) {
@@ -39,9 +39,9 @@ export default createStore({
     }
   },
   actions: {
-    async setTareas({ commit }, tarea) {
+    async setTareas({ commit, state }, tarea) {
       try {
-        const res = await fetch(`${firebaseURL}/${tarea.id}.json`, {
+        const res = await fetch(`${firebaseURL}/${state.user.localId}/${tarea.id}.json?auth=${state.user.idToken}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -54,9 +54,9 @@ export default createStore({
       }
       commit('set', tarea)
     },
-    async deleteTareas({ commit }, id) {
+    async deleteTareas({ commit, state }, id) {
       try {
-        fetch(`${firebaseURL}/${id}.json`, {
+        fetch(`${firebaseURL}/${state.user.localId}/${id}.json?auth=${state.user.idToken}`, {
           method: 'DELETE'
         })
         commit('eliminar', id)
@@ -67,9 +67,9 @@ export default createStore({
     setTarea({ commit }, id) {
       commit('tarea', id)
     },
-    async updateTarea({ commit }, tarea) {
+    async updateTarea({ commit, state }, tarea) {
       try {
-        const res = fetch(`${firebaseURL}/${tarea.id}.json`, {
+        const res = fetch(`${firebaseURL}/${state.user.localId}/${tarea.id}.json?auth=${state.user.idToken}`, {
           method: 'PATCH',
           body: JSON.stringify(tarea)
         })
@@ -78,9 +78,9 @@ export default createStore({
         console.error(error);
       }
     },
-    async cargarLocalStorage({ commit }) {
+    async cargarLocalStorage({ commit, state }) {
       try {
-        const res = await fetch(`${firebaseURL}.json`)
+        const res = await fetch(`${firebaseURL}/${state.user.localId}.json?auth=${state.user.idToken}`)
         const dataDB = await res.json()
         const arrayTareas = []
         for (let id in dataDB) {
@@ -92,45 +92,41 @@ export default createStore({
       }
     },
     async registrarUsuario({ commit }, usuario) {
-      try {
-        const res = fetch(signupURL, {
-          method: 'POST',
-          body: JSON.stringify({
-            email: usuario.email,
-            password: usuario.password,
-            returnSecureToken: true
-          })
+      fetch(signupURL, {
+        method: 'POST',
+        body: JSON.stringify({
+          email: usuario.email,
+          password: usuario.password,
+          returnSecureToken: true
         })
-        const userDB = await res
-        console.log(userDB)
-        if (userDB.ok === false) {
-          return console.error(userDB.statusText);
+      })
+      .then(res => res.json())
+      .then(user => {
+        if (user.error) {
+          return console.error(user.error.message);
         }
-        commit('setUser', userDB)
-      } catch (error) {
-        console.error(error);
-      }
+        commit('setUser', user)
+      })
+      .catch(error => console.error(error))
     },
     async loginUsuario({ commit }, usuario) {
-      try {
-        const res = fetch(signinURL, {
-          method: 'POST',
-          body: JSON.stringify({
-            email: usuario.email,
-            password: usuario.password,
-            returnSecureToken: true
-          })
+      fetch(signinURL, {
+        method: 'POST',
+        body: JSON.stringify({
+          email: usuario.email,
+          password: usuario.password,
+          returnSecureToken: true
         })
-        const userDB = await res
-        console.log(userDB)
-        if (userDB.ok === false) {
-          return console.error(userDB.statusText);
+      })
+      .then(response => response.json())
+      .then(user => {
+        if (user.error) {
+          return console.error(user.error.message);
         }
-        commit('setUser', userDB)
+        commit('setUser', user)
         router.push("/")
-      } catch (error) {
-        console.error(error);
-      }
+      })
+      .catch(error => console.error(error))
     }
   },
   modules: {

@@ -30,7 +30,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setTareas']),
+    ...mapActions(['setTareas', 'cargarLocalStorage']),
     procesarForm() {
       this.tarea.id = shortid.generate()
       this.setTareas(this.tarea)
@@ -43,5 +43,8 @@ export default {
       }
     },
   },
+  created() {
+    this.cargarLocalStorage()
+  }
 }
 </script>
