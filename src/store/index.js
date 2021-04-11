@@ -79,6 +79,12 @@ export default createStore({
       }
     },
     async cargarLocalStorage({ commit, state }) {
+      const userLS = localStorage.getItem('user')
+      if (userLS) {
+        commit('setUser', JSON.parse(userLS))
+      } else {
+        return commit('setUser', null)
+      }
       try {
         const res = await fetch(`${firebaseURL}/${state.user.localId}.json?auth=${state.user.idToken}`)
         const dataDB = await res.json()
@@ -106,6 +112,8 @@ export default createStore({
           return console.error(user.error.message);
         }
         commit('setUser', user)
+        localStorage.setItem('user', JSON.stringify(user))
+        router.push("/")
       })
       .catch(error => console.error(error))
     },
@@ -124,12 +132,14 @@ export default createStore({
           return console.error(user.error.message);
         }
         commit('setUser', user)
+        localStorage.setItem('user', JSON.stringify(user))
         router.push("/")
       })
       .catch(error => console.error(error))
     },
     cerrarSesion({ commit }) {
       commit('setUser', null)
+      localStorage.removeItem('user')
       router.push("/login")
     }
   },
