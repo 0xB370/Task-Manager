@@ -15,7 +15,8 @@ export default createStore({
       estado: '',
       numero: 0
     },
-    user: null
+    user: null,
+    error: {tipo: null, mensaje: null}
   },
   mutations: {
     setUser(state, payload) {
@@ -36,6 +37,23 @@ export default createStore({
     },
     cargar(state, payload) {
       state.tareas = payload
+    },
+    setError(state, payload) {
+      if (payload === null) {
+        return state.error = {tipo: null, mensaje: null}
+      }
+      if (payload === "INVALID_PASSWORD") {
+        return state.error = {tipo: 'password', mensaje: 'Contraseña Incorrecta'}
+      }
+      if (payload === "EMAIL_NOT_FOUND") {
+        state.error = {tipo: 'email', mensaje: 'E-mail no Registrado'}
+      }
+      if (payload === "EMAIL_EXISTS") {
+        state.error = {tipo: 'email', mensaje: 'E-mail ya Registrado'}
+      }
+      if (payload === "INVALID_EMAIL") {
+        state.error = {tipo: 'email', mensaje: 'Formato Incorrecto de E-mail'}
+      }
     }
   },
   actions: {
@@ -109,9 +127,11 @@ export default createStore({
       .then(res => res.json())
       .then(user => {
         if (user.error) {
-          return console.error(user.error.message);
+          console.error(user.error.message);
+          return commit('setError', user.error.message)
         }
         commit('setUser', user)
+        commit('setError', null)
         localStorage.setItem('user', JSON.stringify(user))
         router.push("/")
       })
@@ -129,13 +149,15 @@ export default createStore({
       .then(response => response.json())
       .then(user => {
         if (user.error) {
-          return console.error(user.error.message);
+          console.error(user.error.message);
+          return commit('setError', user.error.message)
         }
         commit('setUser', user)
+        commit('setError', null)
         localStorage.setItem('user', JSON.stringify(user))
         router.push("/")
       })
-      .catch(error => console.error(error))
+      .catch((error) => console.error(error))
     },
     cerrarSesion({ commit }) {
       commit('setUser', null)
